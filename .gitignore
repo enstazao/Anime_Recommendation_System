@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+nrml_env/
+
+# OS/editor/local agent settings
+.DS_Store
+.claude/
+.codex*
+
+# Logs
+*.log
+logs/
+Scraping/logs/
+
+# Secrets
+.env
+*.env
+
+# Generated embedding/model caches
+RecommendationSystem/models/*.npy
+RecommendationSystem/models/anime_embedding_ids*.csv

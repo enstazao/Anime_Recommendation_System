@@ -1,0 +1,1552 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anime Recommendation System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <style>
+:root {
+  --accent:    #6366f1;
+  --accent2:   #818cf8;
+  --accent-bg: rgba(99,102,241,0.08);
+  --text:      #1e2340;
+  --muted:     #7880a4;
+  --border:    #dde1f0;
+  --surface:   #ffffff;
+  --bg:        #f0f2ff;
+  --green:     #16a34a;
+  --yellow:    #d97706;
+  --red:       #dc2626;
+}
+
+.reveal {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.reveal .slides { text-align: left; }
+
+.reveal .slides section {
+  padding: 36px 56px 48px;
+  box-sizing: border-box;
+  height: 100%;
+  display: flex !important;
+  flex-direction: column;
+}
+
+.reveal h1, .reveal h2, .reveal h3 {
+  font-family: inherit;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: -0.02em;
+  margin: 0; padding: 0;
+  font-weight: 800;
+  line-height: 1.2;
+  text-shadow: none;
+}
+
+.reveal p { margin: 0; padding: 0; }
+
+/* accent top bar */
+.accent-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #a855f7, #06b6d4);
+}
+
+/* slide number */
+.slide-num {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 2px 12px;
+  letter-spacing: 0.05em;
+}
+
+.slide-title {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.slide-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+/* two columns */
+.two-col {
+  display: flex;
+  gap: 28px;
+  flex: 1;
+}
+
+.col { flex: 1; display: flex; flex-direction: column; }
+
+/* badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* pipeline */
+.pipeline {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.pipe-step {
+  flex: 1;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.pipe-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.pipe-sub {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.pipe-arrow {
+  color: var(--accent2);
+  font-size: 16px;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* stat mini cards */
+.mini-stats {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mini-stat {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  text-align: center;
+}
+
+.mini-stat-value {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 3px;
+}
+
+.mini-stat-label {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* tag chips */
+.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+
+.tag {
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: var(--accent-bg);
+  border: 1px solid rgba(99,102,241,0.18);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* lib badges */
+.libs { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.lib {
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* code block */
+.code-block {
+  background: #1a1f3a;
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-family: "Fira Code", "Cascadia Code", "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1.75;
+  color: #c7d2fe;
+  flex: 1;
+}
+
+.kw  { color: #818cf8; font-weight: 600; }
+.fn  { color: #93c5fd; }
+.str { color: #86efac; }
+.cm  { color: #4b5880; font-style: italic; }
+
+/* before/after cards */
+.ba-row { display: flex; gap: 10px; margin-bottom: 14px; }
+
+.ba-card {
+  flex: 1;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: center;
+}
+
+.ba-card.after { border-color: #16a34a; background: rgba(22,163,74,0.04); }
+
+.ba-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.ba-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.ba-card.after .ba-val { color: #16a34a; }
+
+/* step list */
+.steps { list-style: none; padding: 0; margin: 0; }
+
+.steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--text);
+}
+
+.steps li:last-child { border-bottom: none; }
+
+.step-n {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  border: 1px solid rgba(99,102,241,0.22);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* field weight bars */
+.field-list { display: flex; flex-direction: column; gap: 6px; }
+
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.field-name {
+  width: 82px;
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.bar-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  border-radius: 99px;
+}
+
+.field-wt {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* info box */
+.info-box {
+  margin-top: 12px;
+  padding: 9px 12px;
+  background: var(--accent-bg);
+  border-radius: 7px;
+  border: 1px solid rgba(99,102,241,0.14);
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* label cards */
+.label-cards { display: flex; gap: 12px; }
+
+.lbl-card {
+  flex: 1;
+  border: 1.5px solid;
+  border-radius: 9px;
+  padding: 12px 14px;
+  text-align: center;
+}
+
+.lbl-card.g { border-color: #16a34a; background: rgba(22,163,74,0.06); }
+.lbl-card.y { border-color: #d97706; background: rgba(217,119,6,0.06); }
+.lbl-card.r { border-color: #dc2626; background: rgba(220,38,38,0.06); }
+
+.lbl-num { font-size: 20px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+.lbl-card.g .lbl-num { color: #16a34a; }
+.lbl-card.y .lbl-num { color: #d97706; }
+.lbl-card.r .lbl-num { color: #dc2626; }
+.lbl-txt { font-size: 11px; color: var(--muted); }
+
+/* data table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+
+.data-table th {
+  background: var(--accent);
+  color: #fff;
+  padding: 7px 10px;
+  font-weight: 600;
+  font-size: 10px;
+  text-align: left;
+}
+
+.data-table th:first-child { border-radius: 7px 0 0 0; }
+.data-table th:last-child  { border-radius: 0 7px 0 0; }
+
+.data-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.data-table tr:nth-child(even) td { background: #f6f7ff; }
+
+.l2 { color: #16a34a; font-weight: 700; }
+.l1 { color: #d97706; font-weight: 700; }
+.l0 { color: #dc2626; font-weight: 700; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════════════ -->
+<section data-transition="fade">
+  <style>
+    /* ── slide 1 keyframes ── */
+    @keyframes s1-title-in {
+      0%   { opacity:0; transform: translateY(32px); filter: blur(6px); }
+      100% { opacity:1; transform: translateY(0);    filter: blur(0); }
+    }
+    @keyframes s1-gradient-shift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes s1-fade-up {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes s1-bar-grow {
+      from { width: 0; opacity: 0; }
+      to   { width: 36px; opacity: 1; }
+    }
+    @keyframes s1-search-drop {
+      0%   { opacity: 0; transform: translateY(-16px) scale(0.97); }
+      60%  { transform: translateY(3px) scale(1.01); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes s1-card-rise {
+      0%   { opacity: 0; transform: translateY(28px) scale(0.93) rotateX(8deg); }
+      70%  { transform: translateY(-4px) scale(1.02) rotateX(0deg); }
+      100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0deg); }
+    }
+    @keyframes s1-float {
+      0%,100% { transform: translateY(0px); }
+      50%      { transform: translateY(-5px); }
+    }
+    @keyframes s1-glow-pulse {
+      0%,100% { box-shadow: 0 2px 8px rgba(99,102,241,0.08); }
+      50%      { box-shadow: 0 4px 20px rgba(99,102,241,0.22); }
+    }
+    @keyframes s1-bar-shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes s1-accent-slide {
+      from { transform: scaleX(0); transform-origin: left; }
+      to   { transform: scaleX(1); transform-origin: left; }
+    }
+
+    /* ── entrance ── */
+    .s1-title  {
+      animation: s1-title-in 0.75s 0.05s cubic-bezier(0.22,1,0.36,1) both;
+      background-size: 200% 200% !important;
+      animation: s1-title-in 0.75s 0.05s cubic-bezier(0.22,1,0.36,1) both,
+                 s1-gradient-shift 4s 0.8s ease infinite;
+    }
+    .s1-sub    { animation: s1-fade-up 0.6s 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+    .s1-bar    { animation: s1-bar-grow 0.5s 0.65s ease both; }
+    .s1-name   { animation: s1-fade-up 0.6s 0.75s cubic-bezier(0.22,1,0.36,1) both; }
+    .s1-search {
+      animation: s1-search-drop 0.6s 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .s1-card-1 { animation: s1-card-rise 0.65s 0.5s  cubic-bezier(0.34,1.56,0.64,1) both; }
+    .s1-card-2 { animation: s1-card-rise 0.65s 0.65s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .s1-card-3 { animation: s1-card-rise 0.65s 0.80s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .s1-card-4 { animation: s1-card-rise 0.65s 0.95s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+    /* ── continuous after entrance ── */
+    .s1-card-1 { animation: s1-card-rise 0.65s 0.5s  cubic-bezier(0.34,1.56,0.64,1) both,
+                             s1-float     3.8s  1.4s  ease-in-out infinite,
+                             s1-glow-pulse 3.8s 1.4s  ease-in-out infinite; }
+    .s1-card-2 { animation: s1-card-rise 0.65s 0.65s cubic-bezier(0.34,1.56,0.64,1) both,
+                             s1-float     3.8s  1.7s  ease-in-out infinite,
+                             s1-glow-pulse 3.8s 1.7s  ease-in-out infinite; }
+    .s1-card-3 { animation: s1-card-rise 0.65s 0.80s cubic-bezier(0.34,1.56,0.64,1) both,
+                             s1-float     3.8s  2.0s  ease-in-out infinite,
+                             s1-glow-pulse 3.8s 2.0s  ease-in-out infinite; }
+    .s1-card-4 { animation: s1-card-rise 0.65s 0.95s cubic-bezier(0.34,1.56,0.64,1) both,
+                             s1-float     3.8s  2.3s  ease-in-out infinite,
+                             s1-glow-pulse 3.8s 2.3s  ease-in-out infinite; }
+
+    .s1-search-after {
+      animation: s1-glow-pulse 2.5s 1.2s ease-in-out infinite;
+    }
+
+    /* accent bar animated */
+    .s1-accent { animation: s1-accent-slide 0.7s 0s cubic-bezier(0.22,1,0.36,1) both; }
+  </style>
+
+  <div class="accent-bar s1-accent"></div>
+
+  <div style="display:flex; align-items:center; flex:1; gap:48px;">
+
+    <!-- LEFT: text -->
+    <div style="flex:1;">
+      <h1 class="s1-title" style="font-size:34px; line-height:1.15; margin-bottom:14px;
+                 background: linear-gradient(135deg,#6366f1 0%,#a855f7 50%,#06b6d4 100%);
+                 background-size: 200% 200%;
+                 -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+                 background-clip:text;">
+        Anime Recommendation<br>System
+      </h1>
+      <p class="s1-sub" style="font-size:13px; color:var(--muted); line-height:1.65; margin-bottom:32px; max-width:340px;">
+        Content-based recommender using TF-IDF, BM25F,
+        Sentence Embeddings &amp; Hybrid Ranking
+      </p>
+      <div class="s1-bar" style="width:36px; height:2px; background:linear-gradient(90deg,#6366f1,#a855f7); border-radius:2px; margin-bottom:18px;"></div>
+      <div class="s1-name">
+        <p style="font-size:16px; font-weight:800; color:var(--text); margin-bottom:4px;">Jawad Ahmed</p>
+        <p style="font-size:12px; color:var(--muted);">Data Science Workflows</p>
+      </div>
+    </div>
+
+    <!-- RIGHT: UI mockup with real images -->
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+
+      <!-- search bar -->
+      <div class="s1-search s1-search-after" style="background:#fff; border:1.5px solid #dde1f0; border-radius:10px; height:40px; display:flex; align-items:center; padding:0 12px; gap:10px; box-shadow:0 1px 4px rgba(99,102,241,0.07);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7880a4" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <span style="font-size:11px; color:#7880a4; flex:1;">Search anime e.g. Attack on Titan…</span>
+        <div style="background:linear-gradient(135deg,#6366f1,#a855f7); border-radius:7px; padding:4px 12px;">
+          <span style="font-size:10px; font-weight:700; color:#fff;">Search</span>
+        </div>
+      </div>
+
+      <!-- 4 anime cards -->
+      <div style="display:flex; gap:8px;">
+
+        <!-- card 1 -->
+        <div class="s1-card-1" style="flex:1; background:#fff; border:1px solid #dde1f0; border-radius:9px; overflow:hidden; box-shadow:0 2px 8px rgba(99,102,241,0.08);">
+          <div style="position:relative; aspect-ratio:2/3; overflow:hidden;">
+            <img src="https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx16498-buvcRTBx4NSm.jpg"
+                 style="width:100%; height:100%; object-fit:cover; display:block;">
+            <div style="position:absolute;top:5px;left:5px;background:#f59e0b;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:800;color:#fff;">#1</div>
+            <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.5);border-radius:5px;padding:1px 5px;font-size:8px;font-weight:700;color:#fbbf24;">★ 94%</div>
+          </div>
+          <div style="padding:7px 8px;">
+            <div style="font-size:10px;font-weight:700;color:#1e2340;line-height:1.3;margin-bottom:3px;">Attack on Titan</div>
+            <div style="display:flex;gap:3px;">
+              <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#eef0ff;color:#6366f1;font-weight:600;">Action</span>
+              <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#eef0ff;color:#6366f1;font-weight:600;">Drama</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- card 2 -->
+        <div class="s1-card-2" style="flex:1; background:#fff; border:1px solid #dde1f0; border-radius:9px; overflow:hidden; box-shadow:0 2px 8px rgba(99,102,241,0.08);">
+          <div style="position:relative; aspect-ratio:2/3; overflow:hidden;">
+            <img src="https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx101922-WBsBl0ClmgYL.jpg"
+                 style="width:100%; height:100%; object-fit:cover; display:block;">
+            <div style="position:absolute;top:5px;left:5px;background:#94a3b8;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:800;color:#fff;">#2</div>
+            <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.5);border-radius:5px;padding:1px 5px;font-size:8px;font-weight:700;color:#fbbf24;">★ 87%</div>
+          </div>
+          <div style="padding:7px 8px;">
+            <div style="font-size:10px;font-weight:700;color:#1e2340;line-height:1.3;margin-bottom:3px;">Demon Slayer</div>
+            <div style="display:flex;gap:3px;">
+              <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#eef0ff;color:#6366f1;font-weight:600;">Action</span>
+              <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#eef0ff;color:#6366f1;font-weight:600;">Fantasy</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- card 3 -->
+        <div class="s1-card-3" style="flex:1; background:#fff; border:1px solid #dde1f0; border-radius:9px; overflow:hidden; box-shadow:0 2px 8px rgba(99,102,241,0.08);">
+          <div style="position:relative; aspect-ratio:2/3; overflow:hidden;">
+            <img src="https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx113415-LHBAeoZDIsnF.jpg"
+                 style="width:100%; height:100%; object-fit:cover; display:block;">
+            <div style="position:absolute;top:5px;left:5px;background:#cd7f32;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:800;color:#fff;">#3</div>
+            <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.5);border-radius:5px;padding:1px 5px;font-size:8px;font-weight:700;color:#fbbf24;">★ 81%</div>
+          </div>
+          <div style="padding:7px 8px;">
+            <div style="font-size:10px;font-weight:700;color:#1e2340;line-height:1.3;margin-bottom:3px;">Jujutsu Kaisen</div>
+            <div style="display:flex;gap:3px;">
+              <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#eef0ff;color:#6366f1;font-weight:600;">Action</span>
+              <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#eef0ff;color:#6366f1;font-weight:600;">Supernatural</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- card 4 -->
+        <div class="s1-card-4" style="flex:1; background:#fff; border:1px solid #dde1f0; border-radius:9px; overflow:hidden; box-shadow:0 2px 8px rgba(99,102,241,0.08);">
+          <div style="position:relative; aspect-ratio:2/3; overflow:hidden;">
+            <img src="https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx1535-kUgkcrfOrkUM.jpg"
+                 style="width:100%; height:100%; object-fit:cover; display:block;">
+            <div style="position:absolute;top:5px;left:5px;background:#6366f1;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:800;color:#fff;">#4</div>
+            <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.5);border-radius:5px;padding:1px 5px;font-size:8px;font-weight:700;color:#fbbf24;">★ 76%</div>
+          </div>
+          <div style="padding:7px 8px;">
+            <div style="font-size:10px;font-weight:700;color:#1e2340;line-height:1.3;margin-bottom:3px;">Death Note</div>
+            <div style="display:flex;gap:3px;">
+              <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#eef0ff;color:#6366f1;font-weight:600;">Mystery</span>
+              <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#eef0ff;color:#6366f1;font-weight:600;">Drama</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="slide-num">01</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 2 — WORKFLOW
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div class="slide-title">Project Workflow</div>
+  <div class="slide-sub">End-to-end pipeline from raw data to recommendations</div>
+
+  <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:28px;">
+
+    <div class="pipeline">
+      <div class="pipe-step" style="border-top:3px solid #6366f1;">
+        <div class="pipe-title">Data Scraping</div>
+        <div class="pipe-sub">AniList API<br>22k anime</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="border-top:3px solid #818cf8;">
+        <div class="pipe-title">Data Cleaning</div>
+        <div class="pipe-sub">Remove noise<br>&amp; duplicates</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="border-top:3px solid #a855f7;">
+        <div class="pipe-title">Annotation</div>
+        <div class="pipe-sub">GPT ranks top-15<br>1,500 rows</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="border-top:3px solid #c026d3;">
+        <div class="pipe-title">Models</div>
+        <div class="pipe-sub">TF-IDF · BM25F<br>Embeddings · Hybrid</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="border-top:3px solid #0ea5e9;">
+        <div class="pipe-title">Evaluation</div>
+        <div class="pipe-sub">Precision@10<br>Recall@10</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="border-top:3px solid #16a34a;">
+        <div class="pipe-title" style="color:#16a34a;">Best Model</div>
+        <div class="pipe-sub">Hybrid wins</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="slide-num">02</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 3 — DATA SCRAPING
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div class="slide-title">Data Scraping</div>
+  <div class="slide-sub">Source: AniList GraphQL API · No authentication required</div>
+
+  <div class="two-col" style="flex:1;">
+
+    <!-- LEFT -->
+    <div class="col">
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <div class="mini-stat-value">22,234</div>
+          <div class="mini-stat-label">Anime collected</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-value">25</div>
+          <div class="mini-stat-label">Fields per entry</div>
+        </div>
+      </div>
+
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:7px;">Fields used by recommender</div>
+      <div class="tags" style="margin-bottom:14px;">
+        <span class="tag">title</span>
+        <span class="tag">genres</span>
+        <span class="tag">tags</span>
+        <span class="tag">description</span>
+        <span class="tag">studios</span>
+        <span class="tag">format</span>
+        <span class="tag">source</span>
+        <span class="tag">cover_image</span>
+        <span class="tag">averageScore</span>
+        <span class="tag">popularity</span>
+        <span class="tag">id</span>
+        <span class="tag">title_english</span>
+      </div>
+
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:7px;">Libraries</div>
+      <div class="libs" style="margin-bottom:14px;">
+        <span class="lib">requests</span>
+        <span class="lib">pandas</span>
+        <span class="lib">Python</span>
+      </div>
+
+      <div style="font-size:11px; color:var(--muted); line-height:1.7;">
+        <span style="color:var(--text); font-weight:600;">Rate limit:</span> 1 second between requests<br>
+        <span style="color:var(--text); font-weight:600;">Retry:</span> Auto-retry on HTTP 429<br>
+        <span style="color:var(--text); font-weight:600;">Resume:</span> Skips already-saved IDs
+      </div>
+    </div>
+
+    <!-- RIGHT: pseudo code -->
+    <div class="col">
+      <div class="code-block">
+        <span class="cm"># AniList GraphQL scraper</span><br>
+        <br>
+        <span class="kw">for</span> page <span class="kw">in</span> AniList_pages:<br>
+        &nbsp;&nbsp;response = <span class="fn">POST</span>(<span class="str">graphql_query</span>)<br>
+        <br>
+        &nbsp;&nbsp;<span class="kw">if</span> status == <span class="str">429</span>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">wait</span>(retry_after)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">retry</span>()<br>
+        <br>
+        &nbsp;&nbsp;<span class="kw">for</span> anime <span class="kw">in</span> response:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> anime.id <span class="kw">not in</span> saved:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">save</span>(title, genres, tags,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description, cover_image,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;studios, scores, format)<br>
+        <br>
+        &nbsp;&nbsp;<span class="kw">if not</span> hasNextPage: <span class="kw">break</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="slide-num">03</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 4 — DATA CLEANING
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div class="slide-title">Data Cleaning</div>
+  <div class="slide-sub">Preparing clean, consistent data for the recommender pipeline</div>
+
+  <div class="two-col" style="flex:1;">
+
+    <!-- LEFT -->
+    <div class="col">
+      <div class="ba-row">
+        <div class="ba-card">
+          <div class="ba-lbl">Before</div>
+          <div class="ba-val">22,234</div>
+          <div style="font-size:10px; color:var(--muted); margin-top:2px;">rows</div>
+        </div>
+        <div class="ba-card after">
+          <div class="ba-lbl">After</div>
+          <div class="ba-val">21,901</div>
+          <div style="font-size:10px; color:#16a34a; margin-top:2px;">rows kept</div>
+        </div>
+      </div>
+
+      <ul class="steps">
+        <li><span class="step-n">1</span>Drop rows with no genres AND no description</li>
+        <li><span class="step-n">2</span>Decode HTML entities in descriptions</li>
+        <li><span class="step-n">3</span>Trim whitespace in title &amp; description fields</li>
+        <li><span class="step-n">4</span>Standardize pipe-separated lists (genres · tags · studios)</li>
+        <li><span class="step-n">5</span>Remove exact duplicate IDs</li>
+        <li><span class="step-n">6</span>Remove 178 near-duplicate titles, keep most popular</li>
+      </ul>
+    </div>
+
+    <!-- RIGHT: field weights -->
+    <div class="col">
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px;">Fields used in recommender (with weights)</div>
+
+      <div class="field-list">
+        <div class="field-row">
+          <div class="field-name">genres</div>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+          <div class="field-wt">×5</div>
+        </div>
+        <div class="field-row">
+          <div class="field-name">tags</div>
+          <div class="bar-track"><div class="bar-fill" style="width:80%"></div></div>
+          <div class="field-wt">×4</div>
+        </div>
+        <div class="field-row">
+          <div class="field-name">title</div>
+          <div class="bar-track"><div class="bar-fill" style="width:40%"></div></div>
+          <div class="field-wt">×2</div>
+        </div>
+        <div class="field-row">
+          <div class="field-name">description</div>
+          <div class="bar-track"><div class="bar-fill" style="width:20%"></div></div>
+          <div class="field-wt">×1</div>
+        </div>
+        <div class="field-row">
+          <div class="field-name">studios</div>
+          <div class="bar-track"><div class="bar-fill" style="width:20%"></div></div>
+          <div class="field-wt">×1</div>
+        </div>
+        <div class="field-row">
+          <div class="field-name">format</div>
+          <div class="bar-track"><div class="bar-fill" style="width:20%"></div></div>
+          <div class="field-wt">×1</div>
+        </div>
+        <div class="field-row">
+          <div class="field-name">source</div>
+          <div class="bar-track"><div class="bar-fill" style="width:20%"></div></div>
+          <div class="field-wt">×1</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="slide-num">04</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 5 — CLEANED DATA PREVIEW
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div class="slide-title">Cleaned Dataset Structure</div>
+  <div class="slide-sub">Fields that feed directly into the recommendation models · 21,901 rows</div>
+
+  <table class="data-table" style="margin-bottom:10px; font-size:10px;">
+    <thead>
+      <tr>
+        <th>title_romaji</th>
+        <th>title_english</th>
+        <th>genres</th>
+        <th>tags (sample)</th>
+        <th>studios</th>
+        <th>format</th>
+        <th>source</th>
+        <th style="white-space:nowrap;">score <span style="font-weight:400; color:var(--muted);">/100</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sousou no Frieren</td>
+        <td>Frieren: Beyond…</td>
+        <td>Adventure|Drama|Fantasy</td>
+        <td>Travel|Magic|Elf…</td>
+        <td>Madhouse</td>
+        <td>TV</td>
+        <td>MANGA</td>
+        <td><strong style="color:#16a34a;">91</strong></td>
+      </tr>
+      <tr>
+        <td>Hagane no Renkinjutsushi</td>
+        <td>Fullmetal Alchemist</td>
+        <td>Action|Adventure|Drama</td>
+        <td>Alchemy|Conspiracy|Military…</td>
+        <td>bones</td>
+        <td>TV</td>
+        <td>MANGA</td>
+        <td><strong style="color:#16a34a;">90</strong></td>
+      </tr>
+      <tr>
+        <td>Shingeki no Kyojin</td>
+        <td>Attack on Titan</td>
+        <td>Action|Drama|Fantasy</td>
+        <td>Military|Tragedy|Dystopian…</td>
+        <td>WIT STUDIO</td>
+        <td>TV</td>
+        <td>MANGA</td>
+        <td><strong style="color:#16a34a;">90</strong></td>
+      </tr>
+      <tr>
+        <td>Steins;Gate</td>
+        <td>Steins;Gate</td>
+        <td>Drama|Psychological|Sci-Fi</td>
+        <td>Time Manipulation|Alternate…</td>
+        <td>Frontier Works</td>
+        <td>TV</td>
+        <td>VISUAL_NOVEL</td>
+        <td><strong style="color:#16a34a;">89</strong></td>
+      </tr>
+      <tr>
+        <td>Kaguya-sama wa Kokurasetai</td>
+        <td>Kaguya-sama: Love is War</td>
+        <td>Comedy|Psychological|Romance</td>
+        <td>School|Heterosexual|Mind Games…</td>
+        <td>Aniplex</td>
+        <td>TV</td>
+        <td>MANGA</td>
+        <td><strong style="color:#16a34a;">89</strong></td>
+      </tr>
+      <tr>
+        <td>3-gatsu no Lion 2nd Season</td>
+        <td>March Comes in Like a Lion 2</td>
+        <td>Drama|Slice of Life</td>
+        <td>Coming of Age|Shogi|Depression…</td>
+        <td>Shaft</td>
+        <td>TV</td>
+        <td>MANGA</td>
+        <td><strong style="color:#16a34a;">89</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="font-size:10px; color:var(--muted);">genres ×5 · tags ×4 · title ×2 · description · studios · format · source ×1</div>
+
+  <div class="slide-num">05</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 7 — ANNOTATION
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div class="slide-title">Data Annotation</div>
+  <div class="slide-sub">3-pass GPT pipeline to build the evaluation gold standard</div>
+
+  <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:16px;">
+
+    <!-- TOP PIPELINE -->
+    <div class="pipeline">
+      <div class="pipe-step" style="border-top:3px solid #6366f1;">
+        <div class="pipe-title">100 Seed Anime</div>
+        <div class="pipe-sub">top popular titles<br>from catalog</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="border-top:3px solid #818cf8;">
+        <div class="pipe-title">~40 Candidates</div>
+        <div class="pipe-sub">matched by genre<br>tags · description</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="border-top:3px solid #a855f7; background:rgba(168,85,247,0.03);">
+        <div class="pipe-title" style="color:#a855f7;">Pass 1 — Ranker</div>
+        <div class="pipe-sub">Selector → Critic<br>→ Calibration<br>picks top 15</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="border-top:3px solid #c026d3; background:rgba(192,38,211,0.03);">
+        <div class="pipe-title" style="color:#c026d3;">Pass 2 — Verifier</div>
+        <div class="pipe-sub">checks ranking<br>fixes labels<br>can replace</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="border-top:3px solid #0ea5e9; background:rgba(14,165,233,0.03);">
+        <div class="pipe-title" style="color:#0ea5e9;">Pass 3 — Verifier</div>
+        <div class="pipe-sub">second audit<br>calibrates scores<br>final ranking</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="border-top:3px solid #16a34a; background:rgba(22,163,74,0.03);">
+        <div class="pipe-title" style="color:#16a34a;">Manually Verified</div>
+        <div class="pipe-sub">human review<br>of GPT labels<br>1,500 rows</div>
+      </div>
+    </div>
+
+    <!-- BOTTOM: what each pass sends + label cards -->
+    <div style="display:flex; gap:12px; align-items:stretch;">
+
+      <!-- what GPT receives -->
+      <div style="flex:1.6; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px;">
+        <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); margin-bottom:7px;">What GPT receives per seed</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <span class="tag">seed title</span>
+          <span class="tag">seed genres</span>
+          <span class="tag">seed tags</span>
+          <span class="tag">seed description</span>
+          <span class="tag">~40 candidate titles</span>
+          <span class="tag">candidate genres + tags</span>
+          <span class="tag">candidate descriptions</span>
+        </div>
+      </div>
+
+      <!-- label cards -->
+      <div style="flex:1; display:flex; gap:8px;">
+        <div class="lbl-card g" style="flex:1;">
+          <div class="lbl-num">2</div>
+          <div class="lbl-txt">Strong match<br><span style="font-size:9px; color:var(--muted);">score 7–10</span></div>
+        </div>
+        <div class="lbl-card y" style="flex:1;">
+          <div class="lbl-num">1</div>
+          <div class="lbl-txt">Somewhat similar<br><span style="font-size:9px; color:var(--muted);">score 4–6</span></div>
+        </div>
+        <div class="lbl-card r" style="flex:1;">
+          <div class="lbl-num">0</div>
+          <div class="lbl-txt">Not similar<br><span style="font-size:9px; color:var(--muted);">score 0–3</span></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="slide-num">07</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 8 — DATASET PREVIEW
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+
+  <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;">
+    <div>
+      <div class="slide-title">Annotated Dataset Structure</div>
+      <div class="slide-sub" style="margin-bottom:0;">Ground truth used for model evaluation</div>
+    </div>
+    <div style="display:flex; gap:7px; margin-top:4px;">
+      <span class="badge">GPT-Annotated</span>
+      <span class="badge" style="border-color:rgba(22,163,74,0.3); color:#16a34a; background:rgba(22,163,74,0.06);">Manually Verified</span>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>seed_title</th>
+        <th>rank</th>
+        <th>recommended_title</th>
+        <th>label <span style="font-weight:400; color:var(--muted);">(0/1/2)</span></th>
+        <th>score <span style="font-weight:400; color:var(--muted);">/10</span></th>
+        <th>reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Attack on Titan</td><td>1</td>
+        <td>Attack on Titan Season 2</td>
+        <td><span class="l2">2</span></td><td>10</td>
+        <td>Direct continuation of the story</td>
+      </tr>
+      <tr>
+        <td>Attack on Titan</td><td>2</td>
+        <td>Attack on Titan Season 3</td>
+        <td><span class="l2">2</span></td><td>9</td>
+        <td>Deeper conspiracies and battles</td>
+      </tr>
+      <tr>
+        <td>Attack on Titan</td><td>9</td>
+        <td>Attack on Titan Chronicle</td>
+        <td><span class="l1">1</span></td><td>6</td>
+        <td>Compiles seasons, weaker standalone value</td>
+      </tr>
+      <tr>
+        <td>Attack on Titan</td><td>10</td>
+        <td>Seraph of the End</td>
+        <td><span class="l1">1</span></td><td>6</td>
+        <td>Post-apocalyptic setting, different tone</td>
+      </tr>
+      <tr>
+        <td>Hunter x Hunter</td><td>13</td>
+        <td>Berserk</td>
+        <td><span class="l0">0</span></td><td>3</td>
+        <td>Grim dark fantasy, too different in premise</td>
+      </tr>
+      <tr>
+        <td>Hunter x Hunter</td><td>14</td>
+        <td>Tokyo Ghoul</td>
+        <td><span class="l0">0</span></td><td>3</td>
+        <td>Urban horror, weak recommendation link</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+    <div style="display:flex; gap:8px; align-items:center; font-size:10px;">
+      <span style="padding:2px 9px; border-radius:5px; background:rgba(22,163,74,0.08); border:1px solid rgba(22,163,74,0.25); color:#16a34a; font-weight:700;">score 7–10 → label 2</span>
+      <span style="padding:2px 9px; border-radius:5px; background:rgba(217,119,6,0.08); border:1px solid rgba(217,119,6,0.25); color:#d97706; font-weight:700;">score 4–6 → label 1</span>
+      <span style="padding:2px 9px; border-radius:5px; background:rgba(220,38,38,0.08); border:1px solid rgba(220,38,38,0.25); color:#dc2626; font-weight:700;">score 0–3 → label 0</span>
+    </div>
+    <div style="font-size:11px; color:var(--muted);">100 seeds × 15 = <strong style="color:var(--accent);">1,500 rows</strong></div>
+  </div>
+
+  <div class="slide-num">08</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 9 — RECOMMENDATION MODELS
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div class="slide-title">Recommendation Models</div>
+  <div class="slide-sub">Four content-based approaches implemented and compared</div>
+
+  <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:16px;">
+
+    <!-- 4 model cards -->
+    <div style="display:flex; gap:14px;">
+
+      <!-- TF-IDF -->
+      <div style="flex:1; background:var(--surface); border:1.5px solid var(--border); border-top:3px solid #6366f1; border-radius:9px; padding:16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <div style="font-size:14px; font-weight:800; color:var(--text);">TF-IDF</div>
+          <span style="padding:2px 8px; border-radius:5px; background:#eef0ff; font-size:9px; font-weight:700; color:#6366f1;">Sparse</span>
+        </div>
+        <div style="font-size:11px; color:var(--muted); line-height:1.6;">
+          Builds weighted text from genres, tags, title &amp; description. Computes cosine similarity between sparse vectors.
+        </div>
+      </div>
+
+      <!-- BM25F -->
+      <div style="flex:1; background:var(--surface); border:1.5px solid var(--border); border-top:3px solid #a855f7; border-radius:9px; padding:16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <div style="font-size:14px; font-weight:800; color:var(--text);">BM25F</div>
+          <span style="padding:2px 8px; border-radius:5px; background:#faf0ff; font-size:9px; font-weight:700; color:#a855f7;">Field-Weighted</span>
+        </div>
+        <div style="font-size:11px; color:var(--muted); line-height:1.6;">
+          Scores each field (genres, tags, title, description) separately with different weights before combining.
+        </div>
+      </div>
+
+      <!-- Embeddings -->
+      <div style="flex:1; background:var(--surface); border:1.5px solid var(--border); border-top:3px solid #0ea5e9; border-radius:9px; padding:16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <div style="font-size:14px; font-weight:800; color:var(--text);">Embeddings</div>
+          <span style="padding:2px 8px; border-radius:5px; background:#f0f9ff; font-size:9px; font-weight:700; color:#0ea5e9;">Dense</span>
+        </div>
+        <div style="font-size:11px; color:var(--muted); line-height:1.6;">
+          Encodes anime text into dense semantic vectors using MiniLM &amp; BGE. Captures meaning beyond exact words.
+        </div>
+      </div>
+
+      <!-- Hybrid -->
+      <div style="flex:1; background:var(--surface); border:1.5px solid rgba(22,163,74,0.3); border-top:3px solid #16a34a; border-radius:9px; padding:16px 14px; background:rgba(22,163,74,0.03);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <div style="font-size:14px; font-weight:800; color:#16a34a;">Hybrid ✦</div>
+          <span style="padding:2px 8px; border-radius:5px; background:rgba(22,163,74,0.1); font-size:9px; font-weight:700; color:#16a34a;">Best Model</span>
+        </div>
+        <div style="font-size:11px; color:var(--muted); line-height:1.6;">
+          Combines BM25F + TF-IDF + Embeddings scores with genre &amp; tag overlap as a final re-ranking signal.
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+  <div class="slide-num">09</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 10 — ALGORITHMS
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div class="slide-title">Algorithm Details</div>
+  <div class="slide-sub">How each model computes similarity under the hood</div>
+
+  <div style="display:flex; gap:10px; flex:1;">
+
+    <!-- TF-IDF -->
+    <div style="flex:1; display:flex; flex-direction:column; gap:7px;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:12px; font-weight:800; color:var(--text);">TF-IDF</div>
+        <span style="padding:2px 7px; border-radius:5px; background:#eef0ff; font-size:9px; font-weight:700; color:#6366f1; border:1px solid rgba(99,102,241,0.2);">Sparse</span>
+      </div>
+      <div class="code-block" style="flex:1; font-size:10px; line-height:1.65;">
+        <span class="cm"># Weighted text per anime</span><br>
+        <span class="kw">for</span> anime <span class="kw">in</span> catalog:<br>
+        &nbsp;&nbsp;text = (<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;genres × <span class="str">5</span> +<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;tags × <span class="str">4</span> +<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;title × <span class="str">2</span> +<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;description × <span class="str">1</span> +<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;studios + format<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;+ source × <span class="str">1</span><br>
+        &nbsp;&nbsp;)<br>
+        <br>
+        matrix = <span class="fn">TfidfVectorizer</span>(<br>
+        &nbsp;&nbsp;max_features=<span class="str">50,000</span>,<br>
+        &nbsp;&nbsp;ngram_range=<span class="str">(1,2)</span><br>
+        )(texts)<br>
+        <span class="cm"># 21,901 × 50,000</span><br>
+        <br>
+        scores = <span class="fn">cosine_similarity</span>(<br>
+        &nbsp;&nbsp;matrix[query], matrix<br>
+        )<br>
+        <span class="kw">return</span> <span class="fn">top_k</span>(scores)
+      </div>
+    </div>
+
+    <!-- BM25F -->
+    <div style="flex:1; display:flex; flex-direction:column; gap:7px;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:12px; font-weight:800; color:var(--text);">BM25F</div>
+        <span style="padding:2px 7px; border-radius:5px; background:#faf0ff; font-size:9px; font-weight:700; color:#a855f7; border:1px solid rgba(168,85,247,0.2);">Field Weighted</span>
+      </div>
+      <div class="code-block" style="flex:1; font-size:10px; line-height:1.65;">
+        <span class="cm"># Query fields only</span><br>
+        query_fields = {<br>
+        &nbsp;&nbsp;<span class="str">genres</span>: <span class="str">5.0</span>,<br>
+        &nbsp;&nbsp;<span class="str">tags</span>: <span class="str">4.0</span>,<br>
+        &nbsp;&nbsp;<span class="str">title</span>: <span class="str">2.0</span>,<br>
+        &nbsp;&nbsp;<span class="str">description</span>: <span class="str">1.0</span>,<br>
+        &nbsp;&nbsp;<span class="str">studios</span>: <span class="str">0.5</span>,<br>
+        &nbsp;&nbsp;k1=<span class="str">1.5</span><br>
+        }<br>
+        <span class="cm"># format/source: too generic</span><br>
+        <span class="cm"># (TV/MANGA shared by 1000s)</span><br>
+        <br>
+        <span class="kw">for</span> doc <span class="kw">in</span> catalog:<br>
+        &nbsp;&nbsp;score = <span class="fn">Σ</span> BM25(<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;field_i, query_i<br>
+        &nbsp;&nbsp;) × query_fields[field_i]<br>
+        <br>
+        <span class="kw">return</span> <span class="fn">top_k</span>(scores)
+      </div>
+    </div>
+
+    <!-- MiniLM -->
+    <div style="flex:1; display:flex; flex-direction:column; gap:7px;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:12px; font-weight:800; color:var(--text);">MiniLM</div>
+        <span style="padding:2px 7px; border-radius:5px; background:#f0f9ff; font-size:9px; font-weight:700; color:#0ea5e9; border:1px solid rgba(14,165,233,0.2);">Dense · 384-dim</span>
+      </div>
+      <div class="code-block" style="flex:1; font-size:10px; line-height:1.65;">
+        <span class="cm"># all-MiniLM-L6-v2</span><br>
+        model = <span class="fn">SentenceTransformer</span>(<br>
+        &nbsp;&nbsp;<span class="str">"sentence-transformers/</span><br>
+        &nbsp;&nbsp;&nbsp;<span class="str">all-MiniLM-L6-v2"</span><br>
+        )<br>
+        <br>
+        embeddings = <span class="fn">model.encode</span>(<br>
+        &nbsp;&nbsp;all_anime_texts,<br>
+        &nbsp;&nbsp;batch_size=<span class="str">64</span><br>
+        )<br>
+        <span class="cm"># shape: 21,901 × 384</span><br>
+        <span class="fn">save</span>(embeddings, <span class="str">.npy</span>)<br>
+        <br>
+        scores = <span class="fn">cosine_similarity</span>(<br>
+        &nbsp;&nbsp;embeddings[query],<br>
+        &nbsp;&nbsp;embeddings<br>
+        )<br>
+        <span class="kw">return</span> <span class="fn">top_k</span>(scores)
+      </div>
+    </div>
+
+    <!-- BGE -->
+    <div style="flex:1; display:flex; flex-direction:column; gap:7px;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:12px; font-weight:800; color:var(--text);">BGE</div>
+        <span style="padding:2px 7px; border-radius:5px; background:#f0fdf4; font-size:9px; font-weight:700; color:#16a34a; border:1px solid rgba(22,163,74,0.2);">Dense · 768-dim</span>
+      </div>
+      <div class="code-block" style="flex:1; font-size:10px; line-height:1.65;">
+        <span class="cm"># BAAI/bge-base-en-v1.5</span><br>
+        model = <span class="fn">SentenceTransformer</span>(<br>
+        &nbsp;&nbsp;<span class="str">"BAAI/</span><br>
+        &nbsp;&nbsp;&nbsp;<span class="str">bge-base-en-v1.5"</span><br>
+        )<br>
+        <br>
+        embeddings = <span class="fn">model.encode</span>(<br>
+        &nbsp;&nbsp;all_anime_texts,<br>
+        &nbsp;&nbsp;batch_size=<span class="str">64</span><br>
+        )<br>
+        <span class="cm"># shape: 21,901 × 768</span><br>
+        <span class="fn">save</span>(embeddings, <span class="str">.npy</span>)<br>
+        <br>
+        scores = <span class="fn">cosine_similarity</span>(<br>
+        &nbsp;&nbsp;embeddings[query],<br>
+        &nbsp;&nbsp;embeddings<br>
+        )<br>
+        <span class="kw">return</span> <span class="fn">top_k</span>(scores)
+      </div>
+    </div>
+
+  </div>
+
+  <!-- shared input bar -->
+  <div style="margin-top:10px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 14px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); flex-shrink:0;">Shared fields</div>
+    <div style="width:1px; height:16px; background:var(--border); flex-shrink:0;"></div>
+    <div style="display:flex; flex-wrap:wrap; gap:5px; flex:1;">
+      <span class="tag">title (romaji + english)</span>
+      <span class="tag">genres</span>
+      <span class="tag">tags</span>
+      <span class="tag">description</span>
+      <span class="tag">studios</span>
+      <span style="padding:3px 9px; border-radius:5px; background:#fff7ed; border:1px solid rgba(217,119,6,0.25); font-size:10px; font-weight:600; color:#d97706;">format · source — TF-IDF &amp; Embeddings only</span>
+      <span style="padding:3px 9px; border-radius:5px; background:#fff7ed; border:1px solid rgba(217,119,6,0.25); font-size:10px; font-weight:600; color:#d97706;">BM25F skips: too generic (TV / MANGA shared by 1000s)</span>
+    </div>
+  </div>
+
+  <div class="slide-num">10</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 11 — HYBRID
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div class="slide-title">Hybrid Model</div>
+  <div class="slide-sub">Combines all models into one final score</div>
+
+  <div style="display:flex; gap:14px; flex:1;">
+
+    <!-- LEFT: pseudo code -->
+    <div style="flex:1.2; display:flex; flex-direction:column; gap:7px;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:12px; font-weight:800; color:#16a34a;">Hybrid</div>
+        <span style="padding:2px 7px; border-radius:5px; background:rgba(22,163,74,0.08); font-size:9px; font-weight:700; color:#16a34a; border:1px solid rgba(22,163,74,0.2);">Best Model</span>
+      </div>
+      <div class="code-block" style="flex:1; font-size:10px; line-height:1.7;">
+        <span class="cm"># Weights (from config)</span><br>
+        weights = {<br>
+        &nbsp;&nbsp;<span class="str">bm25f</span>:         <span class="str">0.35</span>,<br>
+        &nbsp;&nbsp;<span class="str">embedding</span>:     <span class="str">0.30</span>,<br>
+        &nbsp;&nbsp;<span class="str">tag_overlap</span>:   <span class="str">0.15</span>,<br>
+        &nbsp;&nbsp;<span class="str">tfidf</span>:         <span class="str">0.15</span>,<br>
+        &nbsp;&nbsp;<span class="str">genre_overlap</span>: <span class="str">0.05</span>,<br>
+        }<br>
+        <br>
+        <span class="cm"># Get scores from each model</span><br>
+        bm25f_s     = <span class="fn">bm25f.score</span>(query)<br>
+        tfidf_s     = <span class="fn">cosine</span>(tfidf[query], tfidf)<br>
+        embed_s     = <span class="fn">cosine</span>(bge[query], bge)<br>
+        tag_s       = <span class="fn">jaccard</span>(query.tags, all.tags)<br>
+        genre_s     = <span class="fn">jaccard</span>(query.genres, all.genres)<br>
+        <br>
+        <span class="cm"># Normalize each to [0, 1]</span><br>
+        <span class="kw">for</span> s <span class="kw">in</span> [bm25f_s, tfidf_s,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;embed_s]:<br>
+        &nbsp;&nbsp;s = (s - min) / (max - min)<br>
+        <br>
+        <span class="cm"># Combine</span><br>
+        final = (<br>
+        &nbsp;&nbsp;weights[<span class="str">bm25f</span>]  × bm25f_s +<br>
+        &nbsp;&nbsp;weights[<span class="str">embed</span>]  × embed_s +<br>
+        &nbsp;&nbsp;weights[<span class="str">tags</span>]   × tag_s   +<br>
+        &nbsp;&nbsp;weights[<span class="str">tfidf</span>]  × tfidf_s +<br>
+        &nbsp;&nbsp;weights[<span class="str">genre</span>]  × genre_s<br>
+        )<br>
+        <span class="kw">return</span> <span class="fn">top_k</span>(final)
+      </div>
+    </div>
+
+    <!-- RIGHT: explanation cards -->
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; justify-content:center;">
+
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:2px;">5 components combined</div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-left:3px solid #a855f7; border-radius:7px; padding:8px 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--text);">BM25F score</div>
+          <span style="font-size:11px; font-weight:800; color:#a855f7;">35%</span>
+        </div>
+        <div style="font-size:10px; color:var(--muted);">Field-weighted keyword ranking</div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-left:3px solid #0ea5e9; border-radius:7px; padding:8px 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--text);">BGE Embedding score</div>
+          <span style="font-size:11px; font-weight:800; color:#0ea5e9;">30%</span>
+        </div>
+        <div style="font-size:10px; color:var(--muted);">Semantic similarity · 768-dim vectors</div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-left:3px solid #f97316; border-radius:7px; padding:8px 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--text);">Tag overlap</div>
+          <span style="font-size:11px; font-weight:800; color:#f97316;">15%</span>
+        </div>
+        <div style="font-size:10px; color:var(--muted);">Jaccard: |A ∩ B| / |A ∪ B| on tags</div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-left:3px solid #6366f1; border-radius:7px; padding:8px 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--text);">TF-IDF score</div>
+          <span style="font-size:11px; font-weight:800; color:#6366f1;">15%</span>
+        </div>
+        <div style="font-size:10px; color:var(--muted);">Cosine similarity on sparse vectors</div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-left:3px solid #16a34a; border-radius:7px; padding:8px 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--text);">Genre overlap</div>
+          <span style="font-size:11px; font-weight:800; color:#16a34a;">5%</span>
+        </div>
+        <div style="font-size:10px; color:var(--muted);">Jaccard: |A ∩ B| / |A ∪ B| on genres</div>
+      </div>
+
+      <div style="background:rgba(22,163,74,0.04); border:1px solid rgba(22,163,74,0.2); border-radius:7px; padding:7px 12px; margin-top:2px;">
+        <div style="font-size:10px; color:var(--muted); line-height:1.55;">Each score normalized to <strong style="color:var(--text);">[0,1]</strong> before combining so no single model dominates due to scale differences.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="slide-num">11</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 12 — EVALUATION RESULTS
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div class="slide-title">Evaluation Results</div>
+  <div class="slide-sub">100 seed anime · 1,500 annotated pairs · relevant = similarity_label ≥ 2</div>
+
+  <div style="flex:1; display:flex; flex-direction:column; gap:14px;">
+
+    <!-- table -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden;">
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr style="background:#f5f6fa; border-bottom:2px solid var(--border);">
+            <th style="text-align:left; padding:10px 14px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">Model</th>
+            <th style="text-align:center; padding:10px 10px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">P@3</th>
+            <th style="text-align:center; padding:10px 10px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">P@5</th>
+            <th style="text-align:center; padding:10px 10px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">R@5</th>
+            <th style="text-align:center; padding:10px 10px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">NDCG@3</th>
+            <th style="text-align:center; padding:10px 10px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">NDCG@5</th>
+            <th style="text-align:center; padding:10px 10px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;">NDCG@10</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- TF-IDF -->
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:11px 14px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:#6366f1; flex-shrink:0;"></div>
+                <span style="font-weight:600; color:var(--text);">TF-IDF</span>
+              </div>
+            </td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.573</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.482</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.344</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.624</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.555</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.501</td>
+          </tr>
+          <!-- BM25F -->
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:11px 14px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:#a855f7; flex-shrink:0;"></div>
+                <span style="font-weight:600; color:var(--text);">BM25F</span>
+              </div>
+            </td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.650</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.542</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.391</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.693</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.617</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.547</td>
+          </tr>
+          <!-- MiniLM -->
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:11px 14px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:#0ea5e9; flex-shrink:0;"></div>
+                <span style="font-weight:600; color:var(--text);">Embeddings MiniLM</span>
+              </div>
+            </td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.540</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.422</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.304</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.577</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.492</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:600; color:var(--text);">0.426</td>
+          </tr>
+          <!-- BGE -->
+          <tr style="border-bottom:1px solid var(--border); background:rgba(22,163,74,0.03);">
+            <td style="padding:11px 14px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:#16a34a; flex-shrink:0;"></div>
+                <span style="font-weight:700; color:#16a34a;">Embeddings BGE</span>
+              </div>
+            </td>
+            <td style="text-align:center; padding:11px 10px; font-weight:700; color:#16a34a;">0.697</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:700; color:#16a34a;">0.574</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:700; color:#16a34a;">0.407</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:700; color:#16a34a;">0.753</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:700; color:#16a34a;">0.666</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:700; color:#16a34a;">0.585</td>
+          </tr>
+          <!-- Hybrid — best row -->
+          <tr style="background:rgba(22,163,74,0.05);">
+            <td style="padding:11px 14px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:#16a34a; flex-shrink:0;"></div>
+                <span style="font-weight:800; color:#16a34a;">Hybrid</span>
+                <span style="padding:1px 7px; border-radius:4px; background:rgba(22,163,74,0.12); font-size:9px; font-weight:700; color:#16a34a; border:1px solid rgba(22,163,74,0.3);">Best</span>
+              </div>
+            </td>
+            <td style="text-align:center; padding:11px 10px; font-weight:800; color:#16a34a;">0.703</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:800; color:#16a34a;">0.596</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:800; color:#16a34a;">0.423</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:800; color:#16a34a;">0.755</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:800; color:#16a34a;">0.677</td>
+            <td style="text-align:center; padding:11px 10px; font-weight:800; color:#16a34a;">0.623</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- bottom insight cards -->
+    <div style="display:flex; gap:12px;">
+      <div style="flex:1; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px;">
+        <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); margin-bottom:4px;">Why Hybrid wins</div>
+        <div style="font-size:11px; color:var(--text); line-height:1.6;">BM25F catches exact keyword matches. BGE captures semantic meaning. Tag &amp; genre overlap adds explicit metadata signals. Each covers the other's weaknesses.</div>
+      </div>
+      <div style="flex:1; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px;">
+        <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); margin-bottom:4px;">BGE vs MiniLM</div>
+        <div style="font-size:11px; color:var(--text); line-height:1.6;">BGE NDCG@3 = 0.753 vs MiniLM 0.577 — 768-dim richer representation makes a significant difference for top-ranked results.</div>
+      </div>
+      <div style="flex:1; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px;">
+        <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); margin-bottom:4px;">Note</div>
+        <div style="font-size:11px; color:var(--text); line-height:1.6;">All metrics use the cleaned catalog and are evaluated on 100 seed anime from the annotated test set.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="slide-num">12</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 13 — DEMO
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+    <div style="font-size:96px; font-weight:900; color:var(--text); letter-spacing:-3px; line-height:1;">Demo</div>
+  </div>
+  <div class="slide-num">13</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 14 — THANK YOU
+══════════════════════════════════════════════ -->
+<section>
+  <div class="accent-bar"></div>
+  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;">
+    <div style="font-size:72px; font-weight:900; color:var(--text); letter-spacing:-2px; line-height:1;">Thank You</div>
+    <div style="font-size:28px; font-weight:700; color:var(--accent);">Any Questions?</div>
+  </div>
+  <div class="slide-num">14</div>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    center: false,
+    transition: 'fade',
+    transitionSpeed: 'fast',
+    slideNumber: false,
+    width: 1280,
+    height: 720,
+    margin: 0,
+    controls: true,
+    progress: true,
+  });
+</script>
+</body>
+</html>
