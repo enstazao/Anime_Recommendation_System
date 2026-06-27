@@ -196,9 +196,3 @@ python3 Annotation/make_recommendation_wide.py
 python3 DataQuality/data_quality.py
 python3 DataQuality/clean_data.py
 ```
-
-## Important Note
-
-The final recommendation dataset is AI-pre-labeled ground truth. It is suitable
-for offline recommender testing in this university project, but it should be
-described as GPT-OSS pre-annotated data rather than human-labeled data.
